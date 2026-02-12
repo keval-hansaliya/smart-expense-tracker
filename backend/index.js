@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import { createServer } from "http"; // 1. Import HTTP
+import { Server } from "socket.io";  // 2. Import Socket.io
 
 import userRoutes from "./routes/user.js";
 import categoryRoutes from "./routes/category.js";
@@ -16,6 +18,33 @@ dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 const app = express();
+const httpServer = createServer(app); // 3. Wrap Express
+
+// 4. Initialize Socket.io
+const io = new Server(httpServer, {
+  cors: {
+    origin: "http://localhost:5173",
+    credentials: true,
+  },
+});
+
+// 5. Store 'io' so we can use it in controllers
+app.set("io", io);
+
+// 6. Socket Connection Logic
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
+
+  // User joins their own personal room (room name = user ID)
+  socket.on("join_room", (userId) => {
+    socket.join(userId);
+    console.log(`User ${userId} joined room`);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected");
+  });
+});
 
 /* ===================== MIDDLEWARE ===================== */
 
@@ -24,7 +53,7 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // frontend URL
+    origin: "http://localhost:5173",
     credentials: true,
   })
 );
@@ -32,6 +61,7 @@ app.use(
 /* ===================== ROUTES ===================== */
 
 app.use("/api/auth", userRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/budgets", budgetRoutes);
@@ -42,14 +72,7 @@ app.use("/api/reports", reportRoutes);
 /* ===================== TEST ROUTES ===================== */
 
 app.get("/", (req, res) => {
-  res.send({
-    activeStatus: true,
-    error: false,
-  });
-});
-
-app.get("/__test", (req, res) => {
-  res.send("INDEX ROUTE WORKING");
+  res.send({ activeStatus: true, error: false });
 });
 
 /* ===================== DB + SERVER ===================== */
@@ -58,7 +81,8 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB connected");
-    app.listen(PORT, () =>
+    // 7. Use httpServer.listen instead of app.listen
+    httpServer.listen(PORT, () =>
       console.log(`Server at http://localhost:${PORT}`)
     );
   })

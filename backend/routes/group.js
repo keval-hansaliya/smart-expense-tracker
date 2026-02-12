@@ -1,39 +1,46 @@
 import express from "express";
 import auth from "../middlewares/auth.js";
-
 import {
   createGroup,
   getGroups,
   getGroupDetails,
   inviteMember,
+  joinGroup,
   addGroupExpense,
   getGroupExpenses,
   getGroupSplits,
   addSettlement,
-  getGroupLedger
+  getGroupLedger,
+  deleteGroupExpense, // Import this
+  deleteGroup,
+  addGroupCategory,
+  getGroupCategories
 } from "../controllers/group.js";
 
 const router = express.Router();
 
-/* GROUP */
+/* GROUP MANAGEMENT */
 router.post("/", auth, createGroup);
 router.get("/", auth, getGroups);
+router.post("/join", auth, joinGroup);
 router.get("/:id", auth, getGroupDetails);
+router.delete("/:id", auth, deleteGroup); // New: Delete Group
 
-/* MEMBERS */
+/* MEMBER MANAGEMENT */
 router.post("/:id/invite", auth, inviteMember);
 
-/* EXPENSES */
+/* EXPENSE MANAGEMENT */
 router.post("/:id/expenses", auth, addGroupExpense);
 router.get("/:id/expenses", auth, getGroupExpenses);
+router.delete("/expenses/:expenseId", auth, deleteGroupExpense); // New: Delete Expense
 
-/* SPLITS */
+/* BALANCES & SETTLEMENTS */
 router.get("/:id/splits", auth, getGroupSplits);
-
-/* SETTLEMENT */
 router.post("/:id/settle", auth, addSettlement);
-
-/* LEDGER */
 router.get("/:id/ledger", auth, getGroupLedger);
+
+/* CATEGORY ROUTES */
+router.post("/:id/categories", auth, addGroupCategory);
+router.get("/:id/categories", auth, getGroupCategories);
 
 export default router;

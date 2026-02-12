@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import CreateGroupModal from "../components/groups/CreateGroupModal";
+import JoinGroupModal from "../components/groups/JoinGroupModal"; // <--- Import
 import "../styles/groups.css";
 
 function Groups() {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showJoinModal, setShowJoinModal] = useState(false); // <--- New State
 
   const navigate = useNavigate();
 
@@ -28,25 +30,37 @@ function Groups() {
 
   return (
     <div className="groups-page">
-
-      {/* Header */}
       <div className="groups-header">
         <h2>My Groups</h2>
-        <button 
-          className="create-group-btn"
-          onClick={() => setShowModal(true)}
-        >
-          + Create Group
-        </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          {/* JOIN BUTTON */}
+          <button 
+            className="join-group-btn"
+            onClick={() => setShowJoinModal(true)}
+            style={{
+              padding: "8px 16px", background: "white", color: "#6366f1", 
+              border: "1px solid #6366f1", borderRadius: "6px", cursor: "pointer", fontWeight: "600"
+            }}
+          >
+            Join via ID
+          </button>
+          
+          {/* CREATE BUTTON */}
+          <button 
+            className="create-group-btn"
+            onClick={() => setShowCreateModal(true)}
+          >
+            + Create Group
+          </button>
+        </div>
       </div>
 
-      {/* Content */}
       {loading ? (
         <p className="groups-loading">Loading groups...</p>
       ) : groups.length === 0 ? (
         <div className="groups-empty">
           <h3>No groups yet</h3>
-          <p>Create your first group to start tracking shared expenses.</p>
+          <p>Create one or join a friend's group!</p>
         </div>
       ) : (
         <div className="groups-grid">
@@ -58,19 +72,24 @@ function Groups() {
             >
               <h3>{group.name}</h3>
               <p className="group-type">{group.type}</p>
-              <p className="group-members">
-                {group.members.length} Members
-              </p>
+              <p className="group-members">{group.members.length} Members</p>
             </div>
           ))}
         </div>
       )}
 
-      {/* Modal */}
-      {showModal && (
+      {/* MODALS */}
+      {showCreateModal && (
         <CreateGroupModal
-          onClose={() => setShowModal(false)}
+          onClose={() => setShowCreateModal(false)}
           onCreated={fetchGroups}
+        />
+      )}
+
+      {showJoinModal && (
+        <JoinGroupModal
+          onClose={() => setShowJoinModal(false)}
+          onJoined={fetchGroups}
         />
       )}
     </div>

@@ -1,27 +1,31 @@
-function SummaryCards({ transactions }) {
-  const income = transactions
-    .filter(t => t.type === "income")
-    .reduce((a, b) => a + b.amount, 0);
+import React from "react";
 
-  const expense = transactions
-    .filter(t => t.type === "expense")
-    .reduce((a, b) => a + b.amount, 0);
+function SummaryCards({ income, expense, balance }) {
+  
+  // Helper to format currency (e.g., ₹ 1,200)
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(amount || 0);
+  };
 
   return (
     <div className="summary-grid">
+      <div className="summary-card balance">
+        <span>Total Balance</span>
+        <strong>{formatCurrency(balance)}</strong>
+      </div>
+
       <div className="summary-card income">
-        <h4>Total Income</h4>
-        <p>₹{income}</p>
+        <span>Total Income</span>
+        <strong>{formatCurrency(income)}</strong>
       </div>
 
       <div className="summary-card expense">
-        <h4>Total Expense</h4>
-        <p>₹{expense}</p>
-      </div>
-
-      <div className="summary-card balance">
-        <h4>Balance</h4>
-        <p>₹{income - expense}</p>
+        <span>Total Expense</span>
+        <strong>{formatCurrency(expense)}</strong>
       </div>
     </div>
   );

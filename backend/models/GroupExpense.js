@@ -1,51 +1,44 @@
 import mongoose from "mongoose";
 
-const splitSchema = new mongoose.Schema({
-  userId: {
+const groupExpenseSchema = new mongoose.Schema({
+  groupId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Group",
+    required: true
+  },
+  description: {
+    type: String,
+    required: true
+  },
+  amount: {
+    type: Number,
+    required: true
+  },
+  // 🔥 NEW: Link to GroupCategory
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "GroupCategory" 
+  },
+  paidBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true
   },
-  shareAmount: {
-    type: Number,
-    required: true
+  splitType: {
+    type: String,
+    enum: ["equal", "exact", "percentage"],
+    default: "equal"
+  },
+  splits: [
+    {
+      userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      shareAmount: { type: Number }
+    }
+  ],
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
 });
 
-const groupExpenseSchema = new mongoose.Schema(
-  {
-    groupId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Group",
-      required: true
-    },
-
-    description: {
-      type: String,
-      required: true
-    },
-
-    amount: {
-      type: Number,
-      required: true
-    },
-
-    paidBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true
-    },
-
-    splitType: {
-      type: String,
-      enum: ["equal", "percentage", "exact"],
-      default: "equal"
-    },
-
-    splits: [splitSchema]
-  },
-  { timestamps: true }
-);
-
-export default mongoose.models.GroupExpense ||
-  mongoose.model("GroupExpense", groupExpenseSchema);
+export default mongoose.model("GroupExpense", groupExpenseSchema);

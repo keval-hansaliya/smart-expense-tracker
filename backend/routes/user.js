@@ -1,26 +1,27 @@
 import express from "express";
-const router = express.Router();
-
-console.log("🔥 USER ROUTES FILE LOADED");
-
-import { login, signup, logout } from "../controllers/user.js";
+import { 
+  login, signup, logout, 
+  getInvitations, respondToInvitation,
+  getNotifications, markNotificationsRead 
+} from "../controllers/user.js";
 import auth from "../middlewares/auth.js";
 
-/**
- * Auth routes
- */
+const router = express.Router();
+
+/* AUTH */
 router.post("/login", login);
 router.post("/signup", signup);
 router.post("/logout", logout);
-
-/**
- * Auth check route
- */
 router.get("/me", auth, (req, res) => {
-  res.status(200).json({
-    success: true,
-    user: req.user,
-  });
+  res.status(200).json({ success: true, user: req.user });
 });
+
+/* INVITATIONS */
+router.get("/invitations", auth, getInvitations);
+router.post("/invitations/respond", auth, respondToInvitation);
+
+/* NOTIFICATIONS */
+router.get("/notifications", auth, getNotifications);
+router.put("/notifications/read", auth, markNotificationsRead);
 
 export default router;

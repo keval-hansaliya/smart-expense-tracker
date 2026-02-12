@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import api from "../api/axios";
 
+import SummaryCards from "../components/dashboard/SummaryCards";
+import Notifications from "../components/dashboard/Notifications"; // ✅ Import Notifications
 import IncomeExpenseBar from "../components/charts/IncomeExpenseBar";
 import ExpenseCategoryDonut from "../components/charts/ExpenseCategoryDonut";
 import CashFlowLine from "../components/charts/CashFlowLine";
@@ -132,24 +134,17 @@ function Dashboard() {
           <option value="90d">Last 90 days</option>
         </select>
       </div>
+        {/* 🔥 ADD NOTIFICATIONS HERE */}
+      <Notifications />
 
-      {/* SUMMARY */}
-      <div className="summary-grid">
-        <div className="summary-card balance">
-          <span>Balance</span>
-          <strong>₹ {summary.balance}</strong>
-        </div>
+      {/* SUMMARY CARDS */}
+      <SummaryCards 
+        income={summary.income} 
+        expense={summary.expense} 
+        balance={summary.balance} 
+      />
 
-        <div className="summary-card income">
-          <span>Total Income</span>
-          <strong>₹ {summary.income}</strong>
-        </div>
-
-        <div className="summary-card expense">
-          <span>Total Expense</span>
-          <strong>₹ {summary.expense}</strong>
-        </div>
-      </div>
+      
 
       {/* INSIGHTS */}
       <div className="charts-section">
