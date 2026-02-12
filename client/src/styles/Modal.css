@@ -1,132 +1,83 @@
-/* Modal Card Refinements */
-.modal {
-  background: #ffffff;
-  width: 100%;
-  max-width: 420px; /* Slimmer for better focus */
-  border-radius: 16px;
-  padding: 28px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
-
-.modal h3 {
-  margin: 0 0 20px 0;
-  font-size: 1.15rem; /* Reduced from 1.5rem for professionalism */
-  font-weight: 700;
-  color: #0f172a;
-  text-align: center;
-}
-
-/* Sophisticated Labels */
-.form-section label {
-  display: block;
-  font-size: 0.72rem; /* Small, crisp labels */
-  font-weight: 700;
-  color: #94a3b8; /* Muted color for hierarchy */
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 6px;
-}
-
-/* Fixed Large Amount Input */
-.amount-wrapper {
-  margin-bottom: 24px;
-}
-
-.amount-input-large {
-  width: 100%;
-  border: none !important;
-  background: transparent !important;
-  font-size: 1.75rem !important; /* Professional size, not "giant" */
-  font-weight: 800 !important;
-  color: #6366f1 !important;
-  text-align: center;
-  outline: none;
-}
-
-/* Compact Inputs */
-.modal input[type="text"],
-.modal select {
-  width: 100%;
-  padding: 10px 14px;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  color: #1e293b;
-  background: #fdfdfd;
-  transition: all 0.2s ease;
-}
-
-/* Member List Overhaul */
-.member-list-container {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  max-height: 140px;
-  overflow-y: auto;
-  padding: 4px; /* Tight padding for crisp look */
-}
-
-.split-row {
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
+  justify-content: center;
   align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  position: relative;
+  animation: slideUp 0.3s ease-in-out;
+}
+
+.modal-header {
+  display: flex;
   justify-content: space-between;
-  padding: 8px 12px;
-  border-bottom: 1px solid #f1f5f9;
+  align-items: center;
+  margin-bottom: 15px;
 }
 
-.split-row:last-child { border-bottom: none; }
-
-.member-name {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #334155;
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
 }
 
-/* Smaller individual inputs for percent/exact */
-.split-input-small {
-  width: 65px !important;
-  padding: 6px 10px !important;
-  font-size: 0.8rem !important;
-  text-align: right;
-  border-radius: 6px !important;
-  background: white !important;
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
 }
 
-.split-unit {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #cbd5e1;
-  margin-left: 6px;
-  width: 12px;
+.modal-body {
+  margin-bottom: 20px;
 }
 
-/* Footer Buttons */
 .modal-footer {
   display: flex;
+  justify-content: flex-end;
   gap: 10px;
-  margin-top: 24px;
 }
 
-.btn-save {
-  flex: 2;
-  background: #6366f1;
+.btn-secondary {
+  background-color: #f0f0f0;
+  color: #333;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: #007bff;
   color: white;
-  padding: 12px;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
   border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
-.btn-cancel {
-  flex: 1;
-  background: #f1f5f9;
-  color: #64748b;
-  padding: 12px;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
-  border: none;
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }

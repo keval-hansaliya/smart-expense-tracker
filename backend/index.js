@@ -7,6 +7,10 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { createServer } from "http"; // 1. Import HTTP
 import { Server } from "socket.io";  // 2. Import Socket.io
+import dns from "dns";
+
+// Force usage of Google DNS to bypass local SRV lookup failures
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 import userRoutes from "./routes/user.js";
 import categoryRoutes from "./routes/category.js";

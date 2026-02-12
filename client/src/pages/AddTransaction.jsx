@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
+import Modal from "../components/Modal";
 import "../styles/addTransaction.css";
 
 function AddTransaction() {
@@ -14,6 +15,10 @@ function AddTransaction() {
   const [date, setDate] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -86,18 +91,38 @@ function AddTransaction() {
             />
           </div>
 
-          <select
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            required
-          >
-            <option value="">Select category</option>
-            {categories.map((cat) => (
-              <option key={cat._id} value={cat._id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
+          <div className="category-field" style={{ display: "flex", alignItems: "center", marginBottom: "15px" }}>
+            <select
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
+              required
+              style={{ flex: 1 }}
+            >
+              <option value="">Select category</option>
+              {categories.map((cat) => (
+                <option key={cat._id} value={cat._id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              className="add-category-btn"
+              onClick={() => setIsModalOpen(true)}
+              style={{
+                marginLeft: "10px",
+                padding: "8px 12px",
+                backgroundColor: "#ececec",
+                border: "none",
+                borderRadius: "5px",
+                cursor: "pointer",
+                fontSize: "1.2rem",
+                lineHeight: "1",
+              }}
+            >
+              +
+            </button>
+          </div>
 
           <input
             type="text"
@@ -116,9 +141,71 @@ function AddTransaction() {
           <button type="submit" disabled={loading}>
             {loading ? "Saving..." : "Save Transaction"}
           </button>
+
         </form>
-      </div>
-    </div>
+
+        <Modal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          title="Add Custom Category"
+        >
+          <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+            <input
+              type="text"
+              placeholder="Category Name"
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              style={{
+                padding: "10px",
+                borderRadius: "5px",
+                border: "1px solid #ccc",
+                width: "100%"
+              }}
+            />
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: "5px",
+                  border: "none",
+                  backgroundColor: "#f0f0f0",
+                  cursor: "pointer"
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  if (!newCategoryName.trim()) return;
+                  try {
+                    const res = await api.post("/categories", { name: newCategoryName, type });
+                    setCategories([...categories, res.data]);
+                    setCategoryId(res.data._id);
+                    setNewCategoryName("");
+                    setIsModalOpen(false);
+                  } catch (err) {
+                    alert(err.response?.data?.message || "Failed to add category");
+                  }
+                }}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: "5px",
+                  border: "none",
+                  backgroundColor: "#007bff",
+                  color: "white",
+                  cursor: "pointer"
+                }}
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        </Modal>
+      </div >
+    </div >
   );
 }
 

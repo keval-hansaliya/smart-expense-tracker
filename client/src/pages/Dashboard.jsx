@@ -44,6 +44,9 @@ function Dashboard() {
     if (!daysBack) return transactions;
 
     const now = new Date();
+    // Set to end of day to ensure all transactions from today are included
+    now.setHours(23, 59, 59, 999);
+
     const fromDate = new Date();
     fromDate.setDate(now.getDate() - daysBack);
 
@@ -134,44 +137,41 @@ function Dashboard() {
           <option value="90d">Last 90 days</option>
         </select>
       </div>
-        {/* 🔥 ADD NOTIFICATIONS HERE */}
+      {/* 🔥 ADD NOTIFICATIONS HERE */}
       <Notifications />
 
       {/* SUMMARY CARDS */}
-      <SummaryCards 
-        income={summary.income} 
-        expense={summary.expense} 
-        balance={summary.balance} 
+      <SummaryCards
+        income={summary.income}
+        expense={summary.expense}
+        balance={summary.balance}
       />
 
-      
+
 
       {/* INSIGHTS */}
       <div className="charts-section">
         <h3 className="section-title">Insights</h3>
 
-          {comparison && (
-            <p className="comparison-text">
-              {comparison.isIncrease ? "▲" : "▼"} Expenses{" "}
-              {comparison.isIncrease ? "increased" : "decreased"} by{" "}
-              <strong>{comparison.value}%</strong> compared to the previous period
-            </p>
-          )}
+        {comparison && (
+          <p className="comparison-text">
+            {comparison.isIncrease ? "▲" : "▼"} Expenses{" "}
+            {comparison.isIncrease ? "increased" : "decreased"} by{" "}
+            <strong>{comparison.value}%</strong> compared to the previous period
+          </p>
+        )}
 
 
         <div className="charts-grid">
           <div className="chart-card">
-            <h4>Income vs Expense</h4>
             <IncomeExpenseBar transactions={filteredTransactions} />
           </div>
 
           <div className="chart-card">
-            <h4>Expense Breakdown</h4>
             <ExpenseCategoryDonut transactions={filteredTransactions} />
           </div>
 
           <div className="chart-card full-width">
-            <h4>Cash Flow</h4>
             <CashFlowLine transactions={filteredTransactions} />
           </div>
         </div>

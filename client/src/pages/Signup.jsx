@@ -19,7 +19,7 @@ function Signup() {
       await api.post("/auth/signup", formData);
       setStep(2);
     } catch (err) {
-      setError(err.response?.data?.msg || "Signup failed");
+      setError(err.response?.data?.message || "Signup failed");
     } finally {
       setLoading(false);
     }
@@ -34,7 +34,7 @@ function Signup() {
       localStorage.setItem("user", JSON.stringify(res.data));
       navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.msg || "Verification failed");
+      setError(err.response?.data?.message || "Verification failed");
     } finally {
       setLoading(false);
     }

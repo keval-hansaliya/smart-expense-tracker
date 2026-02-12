@@ -4,13 +4,46 @@ import Group from "../models/Group.js";
 
 /* ===================== GLOBAL DEFAULT CATEGORIES ===================== */
 
-// Get all default categories (same for all users)
+// Get all categories (Global + User specific)
 export const getCategories = async (req, res) => {
   try {
-    const categories = await Category.find().sort({ type: 1, name: 1 });
+    const categories = await Category.find({
+      $or: [{ user: null }, { user: req.user._id }]
+    }).sort({ type: 1, name: 1 });
     res.json(categories);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+// Create a new custom category
+export const createCategory = async (req, res) => {
+  try {
+    const { name, type, icon, color } = req.body;
+
+    // Check if category already exists for this user or globally
+    const existing = await Category.findOne({
+      name,
+      type,
+      $or: [{ user: null }, { user: req.user._id }]
+    });
+
+    if (existing) {
+      return res.status(400).json({ message: "Category already exists" });
+    }
+
+    const newCategory = new Category({
+      name,
+      type,
+      user: req.user._id,
+      icon,
+      color
+    });
+
+    await newCategory.save();
+    res.status(201).json(newCategory);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 };
 

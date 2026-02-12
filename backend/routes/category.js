@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getCategories,
+  createCategory,
   createGroupCategory,
   getGroupCategories,
 } from "../controllers/category.js";
@@ -11,6 +12,7 @@ const router = express.Router();
 /* ===================== DEFAULT GLOBAL CATEGORIES ===================== */
 
 router.get("/", auth, getCategories);
+router.post("/", auth, createCategory);
 
 /* ===================== GROUP CATEGORIES ===================== */
 
