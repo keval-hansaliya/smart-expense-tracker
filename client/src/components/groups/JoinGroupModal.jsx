@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../../api/axios";
+import "../../styles/Modal.css";
 
 function JoinGroupModal({ onClose, onJoined }) {
   const [joinCode, setJoinCode] = useState("");
@@ -10,18 +11,15 @@ function JoinGroupModal({ onClose, onJoined }) {
     e.preventDefault();
     if (!joinCode.trim()) return;
 
+    setLoading(true);
+    setError("");
+
     try {
-      setLoading(true);
-      setError("");
-      
-      // 🔥 UPDATED: Send joinCode instead of groupId
       await api.post("/groups/join", { joinCode: joinCode.trim().toUpperCase() });
-      
-      onJoined(); 
-      onClose();  
-      
+      onJoined();
+      onClose();
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to join group");
+      setError(err.response?.data?.message || "Invalid code or already a member");
     } finally {
       setLoading(false);
     }
@@ -30,43 +28,52 @@ function JoinGroupModal({ onClose, onJoined }) {
   return (
     <div className="modal-overlay">
       <div className="modal">
-        <h3>Join a Group</h3>
-        <p style={{ color: "#64748b", marginBottom: "15px" }}>
-          Ask your friend for the <strong>Invite Code</strong> (e.g., X7K-9P2) and paste it below.
+        {/* Header */}
+        <div className="modal-header">
+          <h3>Join Group</h3>
+          <button className="btn-close" onClick={onClose}>✕</button>
+        </div>
+
+        {/* Description */}
+        <p className="modal-desc">
+          Enter the unique <strong>Invite Code</strong> shared by your group admin to join instantly.
         </p>
 
-        {error && <p style={{ color: "#ef4444", marginBottom: "10px" }}>{error}</p>}
+        {/* Error */}
+        {error && (
+          <div className="modal-error">
+            <span>⚠️</span> {error}
+          </div>
+        )}
 
+        {/* Form */}
         <form onSubmit={handleSubmit}>
+          <label className="modal-section-label">Invite Code</label>
           <input
             type="text"
-            placeholder="Enter Invite Code"
+            className="modal-input code-input"
+            placeholder="Ex: X7K-9P2"
             value={joinCode}
             onChange={(e) => setJoinCode(e.target.value)}
             required
-            style={{ width: "100%", padding: "10px", marginBottom: "15px", textTransform: "uppercase" }}
+            maxLength={10}
+            autoFocus
           />
 
-          <div style={{ display: "flex", gap: "10px" }}>
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                flex: 1, padding: "10px", background: "#6366f1", color: "white",
-                border: "none", borderRadius: "6px", cursor: "pointer"
-              }}
-            >
-              {loading ? "Joining..." : "Join Group"}
-            </button>
+          <div className="modal-actions">
             <button
               type="button"
+              className="modal-btn secondary"
               onClick={onClose}
-              style={{
-                flex: 1, padding: "10px", background: "#e2e8f0", color: "#334155",
-                border: "none", borderRadius: "6px", cursor: "pointer"
-              }}
             >
               Cancel
+            </button>
+            <button
+              type="submit"
+              className="modal-btn primary"
+              disabled={loading || !joinCode.trim()}
+            >
+              {loading ? "Joining..." : "Join Group"}
             </button>
           </div>
         </form>

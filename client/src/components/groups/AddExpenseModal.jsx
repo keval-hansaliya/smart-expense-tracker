@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
-import "../../styles/modal.css";
+import "../../styles/Modal.css";
 
 function AddExpenseModal({ groupId, groupMembers, onClose, onAdded }) {
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
-  const [categoryId, setCategoryId] = useState(""); // ✅ New State
-  const [categories, setCategories] = useState([]); // ✅ New State
+  const [categoryId, setCategoryId] = useState("");
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [splitType, setSplitType] = useState("equal");
-  
+
   const [involvedUsers, setInvolvedUsers] = useState([]);
   const [customSplits, setCustomSplits] = useState([]);
 
@@ -48,7 +48,7 @@ function AddExpenseModal({ groupId, groupMembers, onClose, onAdded }) {
       let payload = {
         description: description || "Expense",
         amount: Number(amount),
-        categoryId, // ✅ Send Category ID
+        categoryId,
         splitType
       };
 
@@ -69,105 +69,140 @@ function AddExpenseModal({ groupId, groupMembers, onClose, onAdded }) {
     }
   };
 
- // client/src/components/groups/AddExpenseModal.jsx
-
-return (
-  <div className="modal-overlay">
-    <div className="modal">
-      <h3>Add Expense</h3>
-      <form onSubmit={handleSubmit}>
-        
-        <div className="amount-wrapper">
-          <input
-            type="number"
-            className="amount-input-large"
-            placeholder="0.00"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            required
-            autoFocus
-          />
+  return (
+    <div className="modal-overlay">
+      <div className="modal modal-lg"> {/* Added modal-lg class for wider layout if needed */}
+        <div className="modal-header centered">
+          <h3>Add Expense</h3>
+          <button className="btn-close-absolute" onClick={onClose}>✕</button>
         </div>
 
-        <div className="form-section">
-          <label>Description</label>
-          <input
-            type="text"
-            placeholder="What was this for?"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="expense-form">
 
-        <div className="input-grid form-section" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-          <div>
-            <label>Category</label>
-            <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
-              <option value="">General</option>
-              {categories.map(cat => (
-                <option key={cat._id} value={cat._id}>{cat.icon} {cat.name}</option>
-              ))}
-            </select>
+          {/* 1. CENTERED AMOUNT INPUT */}
+          <div className="amount-section">
+            <label className="input-label-center">Total Amount</label>
+            <div className="amount-display-wrapper">
+              <span className="currency-symbol-big">₹</span>
+              <input
+                type="number"
+                className="amount-input-big"
+                placeholder="0"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                onWheel={(e) => e.target.blur()}
+                required
+                autoFocus
+              />
+            </div>
           </div>
-          <div>
+
+          {/* 2. DESCRIPTION & CATEGORY */}
+          <div className="form-row">
+            <div className="form-group flex-grow">
+              <label>Description</label>
+              <input
+                type="text"
+                className="modal-input"
+                placeholder="What is this for?"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Category</label>
+              <select
+                className="modal-select"
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+              >
+                <option value="">⚙️ General</option>
+                {categories.map(cat => (
+                  <option key={cat._id} value={cat._id}>{cat.icon} {cat.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* 3. SPLIT TYPE TABS */}
+          <div className="split-type-section">
             <label>Split Method</label>
-            <select value={splitType} onChange={(e) => setSplitType(e.target.value)}>
-              <option value="equal">Equally (=)</option>
-              <option value="percentage">Percent (%)</option>
-              <option value="exact">Exact (₹)</option>
-            </select>
+            <div className="split-tabs">
+              <button
+                type="button"
+                className={`split-tab ${splitType === 'equal' ? 'active' : ''}`}
+                onClick={() => setSplitType('equal')}
+              >
+                = Equally
+              </button>
+              <button
+                type="button"
+                className={`split-tab ${splitType === 'exact' ? 'active' : ''}`}
+                onClick={() => setSplitType('exact')}
+              >
+                ₹ Exact
+              </button>
+              <button
+                type="button"
+                className={`split-tab ${splitType === 'percentage' ? 'active' : ''}`}
+                onClick={() => setSplitType('percentage')}
+              >
+                % Percent
+              </button>
+            </div>
           </div>
-        </div>
 
-        <div className="form-section">
-          <label>Split with</label>
-          <div className="member-list-container">
-            {groupMembers?.map((member) => (
-              <div key={member._id} className="split-row">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  {splitType === "equal" && (
-                    <input 
-                      type="checkbox" 
-                      checked={involvedUsers.includes(member._id)} 
-                      onChange={() => toggleInvolvedUser(member._id)} 
-                      style={{ accentColor: "#6366f1" }}
-                    />
-                  )}
-                  <span className="member-name">{member.username}</span>
-                </div>
-
-                {/* Show split inputs for Percent or Exact */}
-                {splitType !== "equal" && (
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <input 
-                      type="number"
-                      className="split-input-small"
-                      placeholder="0"
-                      value={customSplits.find(s => s.userId === member._id)?.value || ""}
-                      onChange={(e) => handleCustomSplitChange(member._id, e.target.value)}
-                    />
-                    <span className="split-unit">
-                      {splitType === "percentage" ? "%" : "₹"}
-                    </span>
+          {/* 4. MEMBER SELECTION LIST */}
+          <div className="members-section">
+            <label>Split With</label>
+            <div className="members-list-scroll">
+              {groupMembers?.map((member) => (
+                <div
+                  key={member._id}
+                  className={`member-row ${involvedUsers.includes(member._id) && splitType === 'equal' ? 'selected' : ''}`}
+                  onClick={() => splitType === 'equal' && toggleInvolvedUser(member._id)}
+                >
+                  <div className="member-avatar">
+                    {member.username.charAt(0).toUpperCase()}
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+                  <div className="member-info">
+                    <span className="member-name">{member.username}</span>
+                  </div>
 
-        <div className="modal-footer">
-          <button type="submit" className="btn-save" disabled={loading}>
-            {loading ? "Saving..." : "Save Expense"}
+                  {/* Contextual Action Area */}
+                  <div className="member-action" onClick={(e) => e.stopPropagation()}>
+                    {splitType === "equal" ? (
+                      <div className={`checkbox-circle ${involvedUsers.includes(member._id) ? 'checked' : ''}`}>
+                        {involvedUsers.includes(member._id) && '✓'}
+                      </div>
+                    ) : (
+                      <div className="split-input-container">
+                        <input
+                          type="number"
+                          className="split-value-input"
+                          placeholder="0"
+                          value={customSplits.find(s => s.userId === member._id)?.value || ""}
+                          onChange={(e) => handleCustomSplitChange(member._id, e.target.value)}
+                          onWheel={(e) => e.target.blur()}
+                        />
+                        <span className="unit-label">{splitType === 'percentage' ? '%' : '₹'}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <button type="submit" className="btn-submit-main" disabled={loading}>
+            {loading ? "Adding Expense..." : "Add Expense"}
           </button>
-          <button type="button" className="btn-cancel" onClick={onClose}>
-            Cancel
-          </button>
-        </div>
-      </form>
+
+        </form>
+      </div>
     </div>
-  </div>
-);
+  );
 }
 
 export default AddExpenseModal;

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../../api/axios";
+import "../../styles/Modal.css";
 
 function CreateGroupModal({ onClose, onCreated }) {
   const [name, setName] = useState("");
@@ -8,8 +9,9 @@ function CreateGroupModal({ onClose, onCreated }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    if (!name.trim()) return;
 
+    setLoading(true);
     try {
       await api.post("/groups", { name, type });
       onCreated();
@@ -24,37 +26,50 @@ function CreateGroupModal({ onClose, onCreated }) {
   return (
     <div className="modal-overlay">
       <div className="modal">
+        {/* Header */}
+        <div className="modal-header">
+          <h3>Create New Group</h3>
+          <button className="btn-close" onClick={onClose}>✕</button>
+        </div>
 
-        <h3>Create New Group</h3>
+        <p className="modal-desc">
+          Start a new shared expense group for your trip, home, or event.
+        </p>
 
         <form onSubmit={handleSubmit}>
+          <label className="modal-section-label">Group Name</label>
           <input
             type="text"
-            placeholder="Group Name"
+            className="modal-input"
+            placeholder="e.g. Goa Trip 2024"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
+            autoFocus
           />
 
+          <label className="modal-section-label">Group Type</label>
           <select
+            className="modal-select"
             value={type}
             onChange={(e) => setType(e.target.value)}
           >
-            <option>Trip</option>
-            <option>Home</option>
-            <option>Event</option>
-            <option>General</option>
+            <option value="Trip">✈️ Trip</option>
+            <option value="Home">🏠 Home</option>
+            <option value="Couple">❤️ Couple</option>
+            <option value="Event">🎉 Event</option>
+            <option value="Other">👥 Other</option>
           </select>
 
-          <button type="submit" disabled={loading}>
-            {loading ? "Creating..." : "Create Group"}
-          </button>
+          <div className="modal-actions">
+            <button type="button" className="modal-btn secondary" onClick={onClose}>
+              Cancel
+            </button>
+            <button type="submit" className="modal-btn primary" disabled={loading}>
+              {loading ? "Creating..." : "Create Group"}
+            </button>
+          </div>
         </form>
-
-        <button className="close-btn" onClick={onClose}>
-          ✕
-        </button>
-
       </div>
     </div>
   );
