@@ -43,13 +43,13 @@ function Expenses() {
   }, [transactions, typeFilter, categoryFilter, fromDate, toDate]);
 
   const handleExport = () => {
-  exportTransactionsPdf({
-    userName: user?.username || user?.email || "User",
-    transactions: filtered,
-    fromDate,
-    toDate,
-  });
-};
+    exportTransactionsPdf({
+      userName: user?.username || user?.email || "User",
+      transactions: filtered,
+      fromDate,
+      toDate,
+    });
+  };
 
   if (loading) return <p className="expenses-loading">Loading…</p>;
 
@@ -105,17 +105,28 @@ function Expenses() {
       {/* LIST */}
       <div className="expenses-list">
         {filtered.map((t) => (
-          <div key={t._id} className={`expenses-card ${t.type}`}>
-            <div className="expenses-left">
-              <div className="expenses-category">
-                {t.categoryId?.name || "Other"}
-              </div>
-              <div className="expenses-desc">{t.description || "—"}</div>
+          <div key={t._id} className="expenses-card">
+            <div className={`card-icon ${t.type}`}>
+              {t.categoryId?.name?.[0] || "?"}
             </div>
 
-            <div className="expenses-right">
-              <div className={`expenses-amount ${t.type}`}>
-                {t.type === "expense" ? "-" : "+"}₹{t.amount}
+            <div className="card-content">
+              <div className="card-row top">
+                <span className="card-category">{t.categoryId?.name || "Other"}</span>
+                <span className={`card-amount ${t.type}`}>
+                  {t.type === "expense" ? "-" : "+"}₹{t.amount}
+                </span>
+              </div>
+
+              <div className="card-row bottom">
+                <span className="card-desc">{t.description || "No description"}</span>
+                <span className="card-date">
+                  {new Date(t.date).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </span>
               </div>
             </div>
           </div>

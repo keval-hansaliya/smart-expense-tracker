@@ -64,14 +64,14 @@ function AddTransaction() {
         {/* Type toggle */}
         <div className="type-toggle">
           <button
-            className={type === "expense" ? "active expense" : ""}
+            className={`toggle-btn ${type === "expense" ? "active expense" : ""}`}
             onClick={() => setType("expense")}
             type="button"
           >
             Expense
           </button>
           <button
-            className={type === "income" ? "active income" : ""}
+            className={`toggle-btn ${type === "income" ? "active income" : ""}`}
             onClick={() => setType("income")}
             type="button"
           >
@@ -80,68 +80,71 @@ function AddTransaction() {
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="amount-field">
-            <span>₹</span>
+
+          <div className="form-group">
+            <label>Amount</label>
+            <div className="input-wrapper">
+              <span className="currency-symbol">₹</span>
+              <input
+                type="number"
+                placeholder="0"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Category</label>
+            <div className="category-row">
+              <select
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                required
+              >
+                <option value="">Select Category</option>
+                {categories.map((cat) => (
+                  <option key={cat._id} value={cat._id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                className="add-category-btn"
+                onClick={() => setIsModalOpen(true)}
+                title="Add new category"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Description (Optional)</label>
             <input
-              type="number"
-              placeholder="0.00"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              required
+              type="text"
+              placeholder="e.g. Dinner with friends"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
             />
           </div>
 
-          <div className="category-field" style={{ display: "flex", alignItems: "center", marginBottom: "15px" }}>
-            <select
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
+          <div className="form-group">
+            <label>Date</label>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
               required
-              style={{ flex: 1 }}
-            >
-              <option value="">Select category</option>
-              {categories.map((cat) => (
-                <option key={cat._id} value={cat._id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-            <button
-              type="button"
-              className="add-category-btn"
-              onClick={() => setIsModalOpen(true)}
-              style={{
-                marginLeft: "10px",
-                padding: "8px 12px",
-                backgroundColor: "#ececec",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-                fontSize: "1.2rem",
-                lineHeight: "1",
-              }}
-            >
-              +
-            </button>
+              style={{ fontFamily: "inherit" }}
+            />
           </div>
 
-          <input
-            type="text"
-            placeholder="Description (optional)"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            required
-          />
-
-          <button type="submit" disabled={loading}>
+          <button type="submit" disabled={loading} className="submit-btn">
             {loading ? "Saving..." : "Save Transaction"}
           </button>
-
         </form>
 
         <Modal
