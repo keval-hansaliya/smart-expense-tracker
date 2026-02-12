@@ -1,41 +1,43 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import api from "../api/axios";
-import { socket } from "../api/socket"; // Import socket
+import { socket } from "../api/socket";
+import { useAuth } from "../context/AuthContext";
 import "../styles/navbar.css";
 
 function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   
+  // 1. Get user and logout function from Context
+  const { user, logout } = useAuth();
+  
   const [notifications, setNotifications] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
-  
-  const user = JSON.parse(localStorage.getItem("user"));
 
   const fetchNotifications = async () => {
     try {
       const res = await api.get("/users/notifications");
       setNotifications(res.data);
-    } catch (err) { }
+    } catch (err) {
+      console.error("Failed to fetch notifications", err);
+    }
   };
 
   // 🔥 SOCKET LOGIC
   useEffect(() => {
     if (user) {
-      // 1. Initial Load
+      // 1. Initial Load of notifications
       fetchNotifications();
 
-      // 2. Connect Socket
+      // 2. Connect Socket and join room
       socket.connect();
-      socket.emit("join_room", user._id); // Join my personal room
+      socket.emit("join_room", user._id);
 
       // 3. Listen for REAL-TIME notifications
       socket.on("new_notification", (newNotif) => {
-        // Add new notification to the top of the list
         setNotifications((prev) => [newNotif, ...prev]);
-        // Optional: Play a sound here
       });
 
       return () => {
@@ -43,10 +45,7 @@ function Navbar() {
         socket.disconnect();
       };
     }
-  }, [user]); // Re-run if user changes
-
-  // ... (Keep handleLogout, handleBellClick, clickOutside, and JSX exactly the same) ...
-  // ... Paste the rest of your Navbar code here ...
+  }, [user]); // Re-run if user changes in context
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -61,9 +60,14 @@ function Navbar() {
 
   const handleLogout = async () => {
     try {
+      // 1. Notify backend
       await api.post("/auth/logout");
-      localStorage.removeItem("user");
-      socket.disconnect(); // Disconnect on logout
+      
+      // 2. Clear global state via context (removes from localStorage automatically)
+      logout(); 
+      
+      // 3. Cleanup socket and navigate
+      socket.disconnect(); 
       navigate("/login");
     } catch (err) {
       console.error("Logout failed", err);
@@ -77,7 +81,7 @@ function Navbar() {
         await api.put("/users/notifications/read");
         setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
       } catch (err) {
-        console.error("Failed to mark read");
+        console.error("Failed to mark notifications as read");
       }
     }
   };
@@ -96,6 +100,7 @@ function Navbar() {
           <>
             <div className="nav-links">
               <Link to="/dashboard" className={location.pathname === "/dashboard" ? "active" : ""}>Dashboard</Link>
+              <Link to="/add-transaction" className={location.pathname === "/add-transaction" ? "active" : ""}>Add Transaction</Link>
               <Link to="/expenses" className={location.pathname === "/expenses" ? "active" : ""}>Expenses</Link>
               <Link to="/groups" className={location.pathname.startsWith("/groups") ? "active" : ""}>Groups</Link>
             </div>
