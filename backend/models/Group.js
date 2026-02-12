@@ -21,6 +21,15 @@ const groupSchema = new mongoose.Schema({
       ref: "User"
     }
   ],
+  // 🔥 NEW: Secure Invite Code
+  joinCode: { 
+    type: String, 
+    unique: true, 
+    // Auto-generate a 6-character code (e.g., "A1B-2C3")
+    default: function() {
+      return Math.random().toString(36).substring(2, 8).toUpperCase();
+    }
+  },
   createdAt: {
     type: Date,
     default: Date.now

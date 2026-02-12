@@ -1,42 +1,40 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import api from "../api/axios";
 import "../styles/auth.css";
 
 function Signup() {
   const navigate = useNavigate();
-
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [step, setStep] = useState(1); // Step 1: Info, Step 2: OTP
+  const [formData, setFormData] = useState({ username: "", email: "", password: "" });
+  const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e) => {
+  const handleSignupSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters");
-      return;
-    }
-
     setLoading(true);
-
+    setError("");
     try {
-      const res = await api.post("/auth/signup", {
-        username: username.trim(),
-        email: email.trim(),
-        password,
-      });
-
-      // ✅ SAVE USER (IMPORTANT)
-      localStorage.setItem("user", JSON.stringify(res.data));
-
-      navigate("/dashboard");
+      await api.post("/auth/signup", formData);
+      setStep(2);
     } catch (err) {
       setError(err.response?.data?.msg || "Signup failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      const res = await api.post("/auth/verify-otp", { email: formData.email, otp });
+      localStorage.setItem("user", JSON.stringify(res.data));
+      navigate("/dashboard");
+    } catch (err) {
+      setError(err.response?.data?.msg || "Verification failed");
     } finally {
       setLoading(false);
     }
@@ -45,52 +43,30 @@ function Signup() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <h2>Create account</h2>
-        <p>Start managing your finances</p>
+        <h2>{step === 1 ? "Create account" : "Verify Email"}</h2>
+        <p>{step === 1 ? "Start managing your finances" : `Enter the code sent to ${formData.email}`}</p>
 
         {error && <p className="error-text">{error}</p>}
 
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-
-          <input
-            type="email"
-            placeholder="Email address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-
-          <div className="password-field">
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <span
-              className="toggle-password"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? "🙈" : "👁️"}
-            </span>
-          </div>
-
-          <button type="submit" disabled={loading}>
-            {loading ? "Creating..." : "Create account"}
-          </button>
-        </form>
-
-        <div className="auth-footer">
-          Already have an account? <Link to="/login">Sign in</Link>
-        </div>
+        {step === 1 ? (
+          <form onSubmit={handleSignupSubmit}>
+            <input type="text" placeholder="Username" required
+              onChange={(e) => setFormData({ ...formData, username: e.target.value })} />
+            <input type="email" placeholder="Email address" required
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
+            <input type="password" placeholder="Password (min 6 chars)" required
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })} />
+            <button type="submit" disabled={loading}>{loading ? "Creating..." : "Create account"}</button>
+          </form>
+        ) : (
+          <form onSubmit={handleVerifyOtp}>
+            <input type="text" placeholder="6-digit Code" value={otp} required maxLength="6"
+              onChange={(e) => setOtp(e.target.value)} style={{ textAlign: 'center', letterSpacing: '8px', fontSize: '1.5rem' }} />
+            <button type="submit" disabled={loading}>{loading ? "Verifying..." : "Verify OTP"}</button>
+            <button type="button" className="btn-link" onClick={() => setStep(1)}>Edit email</button>
+          </form>
+        )}
+        <div className="auth-footer">Already have an account? <Link to="/login">Sign in</Link></div>
       </div>
     </div>
   );

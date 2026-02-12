@@ -1,7 +1,9 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-import dotenv from "dotenv";
+
 import cookieParser from "cookie-parser";
 import { createServer } from "http"; // 1. Import HTTP
 import { Server } from "socket.io";  // 2. Import Socket.io

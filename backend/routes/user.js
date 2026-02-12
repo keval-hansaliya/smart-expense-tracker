@@ -1,6 +1,6 @@
 import express from "express";
 import { 
-  login, signup, logout, 
+  login, signup, logout, verifyEmail, // ✅ Added verifyEmail
   getInvitations, respondToInvitation,
   getNotifications, markNotificationsRead 
 } from "../controllers/user.js";
@@ -9,8 +9,9 @@ import auth from "../middlewares/auth.js";
 const router = express.Router();
 
 /* AUTH */
-router.post("/login", login);
 router.post("/signup", signup);
+router.post("/verify-otp", verifyEmail); // 🔥 NEW ROUTE
+router.post("/login", login);
 router.post("/logout", logout);
 router.get("/me", auth, (req, res) => {
   res.status(200).json({ success: true, user: req.user });

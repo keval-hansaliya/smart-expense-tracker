@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import AddExpenseModal from "../components/groups/AddExpenseModal";
 import SettleUpModal from "../components/groups/SettleUpModal"; 
-import InviteMemberModal from "../components/groups/InviteMemberModal"; // ✅ IMPORT THIS
+import InviteMemberModal from "../components/groups/InviteMemberModal"; 
 
 function GroupDetails() {
   const { id } = useParams();
@@ -14,14 +14,12 @@ function GroupDetails() {
   const [splits, setSplits] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [copySuccess, setCopySuccess] = useState(""); // Add state for copy feedback
+  const [copySuccess, setCopySuccess] = useState(""); 
 
-  // Modal States
   const [showAddModal, setShowAddModal] = useState(false);
   const [showSettleModal, setShowSettleModal] = useState(false);
-  const [showInviteModal, setShowInviteModal] = useState(false); // ✅ NEW STATE
+  const [showInviteModal, setShowInviteModal] = useState(false); 
 
-  // Helper: Format Currency
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -31,7 +29,6 @@ function GroupDetails() {
     }).format(amount);
   };
 
-  // Fetch Data
   const fetchData = async () => {
     try {
       const [groupRes, expenseRes, splitRes, userRes] = await Promise.all([
@@ -78,9 +75,12 @@ function GroupDetails() {
     }
   };
 
-  const copyGroupId = () => {
-    navigator.clipboard.writeText(group._id);
-    setCopySuccess("ID Copied!");
+  // 🔥 UPDATED: Copy Join Code instead of ID
+  const copyJoinCode = () => {
+    // If old group has no joinCode, fallback to ID (optional)
+    const code = group.joinCode || group._id;
+    navigator.clipboard.writeText(code);
+    setCopySuccess("Code Copied!");
     setTimeout(() => setCopySuccess(""), 2000);
   };
 
@@ -90,7 +90,6 @@ function GroupDetails() {
   const isAdmin = currentUser?.user?._id === group.adminId?._id;
   const myId = currentUser?.user?._id;
 
-  // Summary Text Logic
   let summaryText = "Loading...";
   if (splits && currentUser?.user) {
     const myBalance = splits.balances?.find(b => b.userId === myId);
@@ -113,13 +112,11 @@ function GroupDetails() {
         <div>
           <h2 style={{ margin: 0, fontSize: "1.8rem", color: "#1e293b" }}>{group.name}</h2>
           
-          {/* Group Info + Invite + Copy ID */}
           <div style={{ color: "#64748b", margin: "5px 0 0", display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
             <span>{group.type} • {group.members?.length} Members</span>
             
             <span>|</span>
             
-            {/* Invite Email Button */}
             <button
                 onClick={() => setShowInviteModal(true)}
                 style={{ background: "none", border: "none", color: "#6366f1", cursor: "pointer", textDecoration: "underline" }}
@@ -129,13 +126,13 @@ function GroupDetails() {
 
             <span>|</span>
 
-            {/* Copy ID Button */}
+            {/* 🔥 UPDATED: Display Join Code */}
             <button
-              onClick={copyGroupId}
+              onClick={copyJoinCode}
               style={{ background: "#f1f5f9", border: "none", padding: "2px 8px", borderRadius: "4px", fontSize: "0.85rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "5px" }}
-              title="Copy Group ID to share"
+              title="Copy Invite Code to share"
             >
-              📋 {copySuccess || "Copy ID"}
+              🔑 {copySuccess || (group.joinCode ? `Code: ${group.joinCode}` : "Copy ID")}
             </button>
           </div>
         </div>
@@ -217,7 +214,6 @@ function GroupDetails() {
                 </div>
                 
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                   {/* Delete Button (Only for Payer or Admin) */}
                    {(isAdmin || exp.paidBy?._id === myId) && (
                     <button 
                       onClick={() => handleDeleteExpense(exp._id)}
@@ -240,7 +236,6 @@ function GroupDetails() {
 
         {/* RIGHT COLUMN: BALANCES & SETTLEMENTS */}
         <div>
-          {/* BALANCES */}
           <h3 style={{ borderBottom: "2px solid #e2e8f0", paddingBottom: "10px", color: "#475569" }}>Balances</h3>
           <div style={{ background: "white", padding: "15px", borderRadius: "10px", border: "1px solid #f1f5f9", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
             {splits?.balances?.map((b, index) => (
@@ -256,7 +251,6 @@ function GroupDetails() {
             ))}
           </div>
 
-          {/* SUGGESTED SETTLEMENTS */}
           <h3 style={{ borderBottom: "2px solid #e2e8f0", paddingBottom: "10px", marginTop: "30px", color: "#475569" }}>Suggested Settlements</h3>
           {!splits?.settlements || splits.settlements.length === 0 ? (
             <p style={{ color: "#94a3b8", fontStyle: "italic" }}>No settlements needed.</p>
@@ -291,8 +285,6 @@ function GroupDetails() {
         </div>
       </div>
 
-      {/* --- MODALS --- */}
-      
       {showAddModal && (
         <AddExpenseModal
           groupId={id}
@@ -305,13 +297,12 @@ function GroupDetails() {
       {showSettleModal && (
         <SettleUpModal
           groupId={id}
-          groupMembers={group.members.filter(m => m._id !== currentUser?.user?._id)} // Exclude self
+          groupMembers={group.members.filter(m => m._id !== currentUser?.user?._id)} 
           onClose={() => setShowSettleModal(false)}
           onSettled={fetchData}
         />
       )}
 
-      {/* ✅ INVITE MODAL */}
       {showInviteModal && (
         <InviteMemberModal
           groupId={id}

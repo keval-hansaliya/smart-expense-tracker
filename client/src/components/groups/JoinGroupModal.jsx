@@ -2,22 +2,23 @@ import { useState } from "react";
 import api from "../../api/axios";
 
 function JoinGroupModal({ onClose, onJoined }) {
-  const [groupId, setGroupId] = useState("");
+  const [joinCode, setJoinCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!groupId.trim()) return;
+    if (!joinCode.trim()) return;
 
     try {
       setLoading(true);
       setError("");
       
-      await api.post("/groups/join", { groupId: groupId.trim() });
+      // 🔥 UPDATED: Send joinCode instead of groupId
+      await api.post("/groups/join", { joinCode: joinCode.trim().toUpperCase() });
       
-      onJoined(); // Refresh list
-      onClose();  // Close modal
+      onJoined(); 
+      onClose();  
       
     } catch (err) {
       setError(err.response?.data?.message || "Failed to join group");
@@ -31,7 +32,7 @@ function JoinGroupModal({ onClose, onJoined }) {
       <div className="modal">
         <h3>Join a Group</h3>
         <p style={{ color: "#64748b", marginBottom: "15px" }}>
-          Ask your friend for the <strong>Group ID</strong> and paste it below.
+          Ask your friend for the <strong>Invite Code</strong> (e.g., X7K-9P2) and paste it below.
         </p>
 
         {error && <p style={{ color: "#ef4444", marginBottom: "10px" }}>{error}</p>}
@@ -39,11 +40,11 @@ function JoinGroupModal({ onClose, onJoined }) {
         <form onSubmit={handleSubmit}>
           <input
             type="text"
-            placeholder="Paste Group ID here (e.g. 64f1...)"
-            value={groupId}
-            onChange={(e) => setGroupId(e.target.value)}
+            placeholder="Enter Invite Code"
+            value={joinCode}
+            onChange={(e) => setJoinCode(e.target.value)}
             required
-            style={{ width: "100%", padding: "10px", marginBottom: "15px" }}
+            style={{ width: "100%", padding: "10px", marginBottom: "15px", textTransform: "uppercase" }}
           />
 
           <div style={{ display: "flex", gap: "10px" }}>
