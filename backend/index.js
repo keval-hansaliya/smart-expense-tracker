@@ -29,7 +29,10 @@ const httpServer = createServer(app); // 3. Wrap Express
 // 4. Initialize Socket.io
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: [
+      "http://localhost:5173",
+      process.env.CLIENT_URL, // Allow Vercel deployment
+    ],
     credentials: true,
   },
 });
@@ -59,7 +62,10 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: [
+      "http://localhost:5173",
+      process.env.CLIENT_URL, // Allow Vercel deployment
+    ],
     credentials: true,
   })
 );
