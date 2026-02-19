@@ -2,15 +2,15 @@ import User from "../models/user.js";
 import Group from "../models/Group.js";
 import bcrypt from "bcrypt";
 import generateToken from "../utils/createToken.js"; // Standardized name used in your project
-import nodemailer from "nodemailer"; 
+import nodemailer from "nodemailer";
 
 // Create transporter using a function to ensure env variables are loaded
 const createTransporter = () => {
   return nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: process.env.EMAIL_USER, 
-      pass: process.env.EMAIL_PASS  
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
     }
   });
 };
@@ -85,7 +85,7 @@ export const verifyEmail = async (req, res) => {
     }
 
     user.isVerified = true;
-    user.otp = undefined;       
+    user.otp = undefined;
     user.otpExpires = undefined;
     await user.save();
 
@@ -131,7 +131,12 @@ export const login = async (req, res) => {
 
 // LOGOUT
 export const logout = (req, res) => {
-  res.cookie("jwt", "", { httpOnly: true, expires: new Date(0) });
+  res.cookie("jwt", "", {
+    httpOnly: true,
+    expires: new Date(0),
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
   res.status(200).json({ message: "Logged out successfully" });
 };
 
@@ -163,7 +168,7 @@ export const respondToInvitation = async (req, res) => {
 
     const user = await User.findById(userId);
     if (!user.invitations.includes(groupId)) {
-        return res.status(400).json({ message: "Invitation not found" });
+      return res.status(400).json({ message: "Invitation not found" });
     }
 
     const group = await Group.findById(groupId);
@@ -183,10 +188,10 @@ export const respondToInvitation = async (req, res) => {
     // Notify Admin of the response
     const adminId = group.adminId;
     if (adminId) {
-       const message = `${user.username} has ${action}ed your invitation to join "${group.name}".`;
-       await User.findByIdAndUpdate(adminId, {
-         $push: { notifications: { message, isRead: false } }
-       });
+      const message = `${user.username} has ${action}ed your invitation to join "${group.name}".`;
+      await User.findByIdAndUpdate(adminId, {
+        $push: { notifications: { message, isRead: false } }
+      });
     }
 
     res.json({ message: `Invitation ${action}ed` });
