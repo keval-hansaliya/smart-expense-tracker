@@ -31,7 +31,8 @@ const io = new Server(httpServer, {
   cors: {
     origin: [
       "http://localhost:5173",
-      process.env.CLIENT_URL, // Allow Vercel deployment
+      "https://smart-expense-tracker-lyart.vercel.app",
+      process.env.CLIENT_URL,
     ],
     credentials: true,
   },
@@ -64,6 +65,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
+      "https://smart-expense-tracker-lyart.vercel.app",
       process.env.CLIENT_URL, // Allow Vercel deployment
     ],
     credentials: true,
