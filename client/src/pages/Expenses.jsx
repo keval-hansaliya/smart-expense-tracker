@@ -11,7 +11,23 @@ function Expenses() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
   const user = JSON.parse(localStorage.getItem("user"));
+
+  const hasActiveFilters =
+    typeFilter !== "all" ||
+    categoryFilter !== "all" ||
+    fromDate !== "" ||
+    toDate !== "" ||
+    sortBy !== "newest";
+
+  const clearFilters = () => {
+    setTypeFilter("all");
+    setCategoryFilter("all");
+    setFromDate("");
+    setToDate("");
+    setSortBy("newest");
+  };
 
   useEffect(() => {
     fetchTransactions();
@@ -29,7 +45,7 @@ function Expenses() {
   };
 
   const filtered = useMemo(() => {
-    return transactions.filter((t) => {
+    let result = transactions.filter((t) => {
       if (typeFilter !== "all" && t.type !== typeFilter) return false;
       if (
         categoryFilter !== "all" &&
@@ -40,7 +56,23 @@ function Expenses() {
       if (toDate && new Date(t.date) > new Date(toDate)) return false;
       return true;
     });
-  }, [transactions, typeFilter, categoryFilter, fromDate, toDate]);
+
+    result.sort((a, b) => {
+      switch (sortBy) {
+        case "oldest":
+          return new Date(a.date) - new Date(b.date);
+        case "amount-desc":
+          return b.amount - a.amount;
+        case "amount-asc":
+          return a.amount - b.amount;
+        case "newest":
+        default:
+          return new Date(b.date) - new Date(a.date);
+      }
+    });
+
+    return result;
+  }, [transactions, typeFilter, categoryFilter, fromDate, toDate, sortBy]);
 
   const handleExport = () => {
     exportTransactionsPdf({
@@ -70,68 +102,93 @@ function Expenses() {
       </div>
 
       {/* FILTERS */}
-      <div className="expenses-filters">
-        <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
-          <option value="all">All Types</option>
-          <option value="income">Income</option>
-          <option value="expense">Expense</option>
-        </select>
+      <div className="expenses-filters-container">
+        <div className="expenses-filters">
+          <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+            <option value="all">All Types</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
 
-        <select
-          value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
-        >
-          <option value="all">All Categories</option>
-          {[...new Set(transactions.map((t) => t.categoryId?.name))]
-            .filter(Boolean)
-            .map((c) => (
-              <option key={c}>{c}</option>
-            ))}
-        </select>
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+          >
+            <option value="all">All Categories</option>
+            {[...new Set(transactions.map((t) => t.categoryId?.name))]
+              .filter(Boolean)
+              .map((c) => (
+                <option key={c}>{c}</option>
+              ))}
+          </select>
 
-        <input
-          type="date"
-          value={fromDate}
-          onChange={(e) => setFromDate(e.target.value)}
-        />
+          <input
+            type="date"
+            value={fromDate}
+            onChange={(e) => setFromDate(e.target.value)}
+          />
 
-        <input
-          type="date"
-          value={toDate}
-          onChange={(e) => setToDate(e.target.value)}
-        />
+          <input
+            type="date"
+            value={toDate}
+            onChange={(e) => setToDate(e.target.value)}
+          />
+
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+          >
+            <option value="newest">Sort By: Newest</option>
+            <option value="oldest">Sort By: Oldest</option>
+            <option value="amount-desc">Sort By: Amount (High to Low)</option>
+            <option value="amount-asc">Sort By: Amount (Low to High)</option>
+          </select>
+        </div>
+
+        {hasActiveFilters && (
+          <button className="clear-filters-btn" onClick={clearFilters}>
+            ✕ Clear Filters
+          </button>
+        )}
       </div>
 
       {/* LIST */}
-      <div className="expenses-list">
-        {filtered.map((t) => (
-          <div key={t._id} className="expenses-card">
-            <div className={`card-icon ${t.type}`}>
-              {t.categoryId?.name?.[0] || "?"}
-            </div>
-
-            <div className="card-content">
-              <div className="card-row top">
-                <span className="card-category">{t.categoryId?.name || "Other"}</span>
-                <span className={`card-amount ${t.type}`}>
-                  {t.type === "expense" ? "-" : "+"}₹{t.amount}
-                </span>
+      {filtered.length === 0 ? (
+        <div className="empty-expenses">
+          <h3>No transactions found</h3>
+          <p>Try adjusting your filters or date range to find what you're looking for.</p>
+        </div>
+      ) : (
+        <div className="expenses-list">
+          {filtered.map((t) => (
+            <div key={t._id} className="expenses-card">
+              <div className={`card-icon ${t.type}`}>
+                {t.categoryId?.name?.[0] || "?"}
               </div>
 
-              <div className="card-row bottom">
-                <span className="card-desc">{t.description || "No description"}</span>
-                <span className="card-date">
-                  {new Date(t.date).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                </span>
+              <div className="card-content">
+                <div className="card-row top">
+                  <span className="card-category">{t.categoryId?.name || "Other"}</span>
+                  <span className={`card-amount ${t.type}`}>
+                    {t.type === "expense" ? "-" : "+"}₹{t.amount}
+                  </span>
+                </div>
+
+                <div className="card-row bottom">
+                  <span className="card-desc">{t.description || "No description"}</span>
+                  <span className="card-date">
+                    {new Date(t.date).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

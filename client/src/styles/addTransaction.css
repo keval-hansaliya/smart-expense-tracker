@@ -58,8 +58,10 @@
   color: #64748b;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-size: clamp(13px, 2vw, 14px);
+  position: relative;
+  overflow: hidden;
 }
 
 .toggle-btn:hover {
@@ -68,15 +70,16 @@
 
 .toggle-btn.active {
   color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transform: scale(1.02);
 }
 
 .toggle-btn.expense.active {
-  background: #ef4444;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
 }
 
 .toggle-btn.income.active {
-  background: #22c55e;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
 }
 
 /* Form */
@@ -89,7 +92,7 @@
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .form-group label {
@@ -98,7 +101,7 @@
   color: #475569;
   margin-left: 2px;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.05em;
 }
 
 /* Common Input Styles */
@@ -114,6 +117,17 @@
   background: white;
   width: 100%;
   transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.input-wrapper input {
+  border: none;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none !important;
+  width: 100%;
+  background: transparent;
 }
 
 .form-group input:focus,
@@ -124,36 +138,25 @@
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
-/* Currency Wrapper */
-.input-wrapper {
+/* Currency Wrapper - Absolute Positioning approach */
+.amount-input-container {
+  position: relative;
   display: flex;
   align-items: center;
-  padding: 0 14px;
-  /* Reset padding for wrapper */
-  background: white;
-  overflow: hidden;
+  width: 100%;
 }
 
-.currency-symbol {
+.currency-prefix {
+  position: absolute;
+  left: 14px;
   color: #64748b;
   font-size: 16px;
   font-weight: 500;
-  margin-right: 4px;
+  pointer-events: none;
 }
 
-.input-wrapper input {
-  border: none;
-  padding: 12px 0;
-  /* Vertical padding only */
-  margin: 0;
-  border-radius: 0;
-  box-shadow: none !important;
-  /* Remove focus shadow from inner input */
-}
-
-.input-wrapper input:focus {
-  outline: none;
-  border: none;
+.amount-input-container .amount-input {
+  padding-left: 32px !important;
 }
 
 /* Remove Spinners */
@@ -173,7 +176,8 @@ input[type=number] {
 .category-row {
   display: flex;
   gap: clamp(6px, 1.5vw, 8px);
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  align-items: center;
 }
 
 .add-category-btn {
@@ -201,23 +205,28 @@ input[type=number] {
 
 /* Submit Button */
 .submit-btn {
-  margin-top: 10px;
+  margin-top: 14px;
   padding: 14px;
   border-radius: 12px;
   border: none;
-  background: #0f172a;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
   color: white;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
 }
 
-.submit-btn:hover {
-  background: #1e293b;
-  transform: translateY(-1px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+.submit-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #334155, #1e293b);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.3);
 }
 
 .submit-btn:disabled {
@@ -236,6 +245,89 @@ input[type=number] {
   border: 1px solid #fee2e2;
   text-align: center;
   word-break: break-word;
+}
+
+/* Modal Custom Styling */
+.add-category-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 10px 0;
+}
+
+.modal-input {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  font-size: 15px;
+  color: #1e293b;
+  width: 100%;
+  transition: all 0.2s;
+  background: #f8fafc;
+  box-sizing: border-box;
+}
+
+.modal-input:focus {
+  outline: none;
+  background: white;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.modal-btn {
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1;
+}
+
+.modal-btn.cancel {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.modal-btn.cancel:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.modal-btn.add {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2);
+}
+
+.modal-btn.add:hover {
+  background: linear-gradient(135deg, #4f46e5, #4338ca);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 10px -2px rgba(99, 102, 241, 0.3);
+}
+
+/* Spinner */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ===== RESPONSIVE ===== */

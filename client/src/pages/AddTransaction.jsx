@@ -81,16 +81,17 @@ function AddTransaction() {
 
         <form onSubmit={handleSubmit}>
 
-          <div className="form-group">
+          <div className="form-group amount-group">
             <label>Amount</label>
-            <div className="input-wrapper">
-              <span className="currency-symbol">₹</span>
+            <div className="amount-input-container">
+              <span className="currency-prefix">₹</span>
               <input
                 type="number"
                 placeholder="0"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 required
+                className="amount-input"
               />
             </div>
           </div>
@@ -143,7 +144,13 @@ function AddTransaction() {
           </div>
 
           <button type="submit" disabled={loading} className="submit-btn">
-            {loading ? "Saving..." : "Save Transaction"}
+            {loading ? (
+              <>
+                <span className="spinner"></span> Saving...
+              </>
+            ) : (
+              "Save Transaction"
+            )}
           </button>
         </form>
 
@@ -152,30 +159,19 @@ function AddTransaction() {
           onClose={() => setIsModalOpen(false)}
           title="Add Custom Category"
         >
-          <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+          <div className="add-category-modal">
             <input
               type="text"
-              placeholder="Category Name"
+              placeholder="E.g., Salary, Groceries"
               value={newCategoryName}
               onChange={(e) => setNewCategoryName(e.target.value)}
-              style={{
-                padding: "10px",
-                borderRadius: "5px",
-                border: "1px solid #ccc",
-                width: "100%"
-              }}
+              className="modal-input"
             />
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+            <div className="modal-actions">
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                style={{
-                  padding: "8px 16px",
-                  borderRadius: "5px",
-                  border: "none",
-                  backgroundColor: "#f0f0f0",
-                  cursor: "pointer"
-                }}
+                className="modal-btn cancel"
               >
                 Cancel
               </button>
@@ -193,16 +189,9 @@ function AddTransaction() {
                     alert(err.response?.data?.message || "Failed to add category");
                   }
                 }}
-                style={{
-                  padding: "8px 16px",
-                  borderRadius: "5px",
-                  border: "none",
-                  backgroundColor: "#007bff",
-                  color: "white",
-                  cursor: "pointer"
-                }}
+                className="modal-btn add"
               >
-                Add
+                Add Category
               </button>
             </div>
           </div>
