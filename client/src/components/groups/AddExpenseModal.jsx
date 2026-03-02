@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
-import "../../styles/Modal.css";
+import "../../styles/modal.css";
 
 function AddExpenseModal({ groupId, groupMembers, onClose, onAdded }) {
   const [amount, setAmount] = useState("");

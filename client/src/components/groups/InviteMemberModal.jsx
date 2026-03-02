@@ -1,6 +1,6 @@
 import { useState } from "react";
 import api from "../../api/axios";
-import "../../styles/Modal.css";
+import "../../styles/modal.css";
 
 function InviteMemberModal({ groupId, onClose, onInvited }) {
   const [email, setEmail] = useState("");
