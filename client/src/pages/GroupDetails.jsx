@@ -4,7 +4,7 @@ import api from "../api/axios";
 import AddExpenseModal from "../components/groups/AddExpenseModal";
 import SettleUpModal from "../components/groups/SettleUpModal";
 import InviteMemberModal from "../components/groups/InviteMemberModal";
-import "../styles/GroupDetails.css";
+import "../styles/groupDetails.css";
 
 function GroupDetails() {
   const { id } = useParams();
@@ -76,9 +76,7 @@ function GroupDetails() {
     }
   };
 
-  // 🔥 UPDATED: Copy Join Code instead of ID
   const copyJoinCode = () => {
-    // If old group has no joinCode, fallback to ID (optional)
     const code = group.joinCode || group._id;
     navigator.clipboard.writeText(code);
     setCopySuccess("Code Copied!");
@@ -135,7 +133,7 @@ function GroupDetails() {
 
             <span className="meta-divider">|</span>
 
-            {/* 🔥 UPDATED: Display Join Code */}
+            {/* Display Join Code */}
             <button
               className="btn-copy"
               onClick={copyJoinCode}

@@ -2,15 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import CreateGroupModal from "../components/groups/CreateGroupModal";
-import JoinGroupModal from "../components/groups/JoinGroupModal"; // <--- Import
+import JoinGroupModal from "../components/groups/JoinGroupModal";
 import "../styles/groups.css";
 
 function Groups() {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showJoinModal, setShowJoinModal] = useState(false); // <--- New State
-
+  const [showJoinModal, setShowJoinModal] = useState(false);
   const navigate = useNavigate();
 
   const fetchGroups = async () => {

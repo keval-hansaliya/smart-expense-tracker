@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axios";
-import { useAuth } from "../context/AuthContext"; // 1. Import useAuth
+import { useAuth } from "../context/AuthContext";
 import Branding from "../components/Branding";
 import "../styles/auth.css";
 
 function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth(); // 2. Get the login function
+  const { login } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
